@@ -1,38 +1,21 @@
-from browsermobproxy import Server
-
-import json
-
-
-
-
-server = Server("./browsermob-proxy-2.1.4/bin/browsermob-proxy")
-server.start()
-proxy = server.create_proxy()
-
 from selenium import webdriver
 from selenium.webdriver.common.proxy import Proxy, ProxyType
+from selenium.webdriver.common.by import By
 
-# Configure Selenium to use the proxy
-proxy_url = proxy.proxy
-webdriver.DesiredCapabilities.CHROME['proxy'] = {
-    "httpProxy": proxy_url,
-    "ftpProxy": proxy_url,
-    "sslProxy": proxy_url,
-    "noProxy": None,
-    "proxyType": "MANUAL",
-    "class": "org.openqa.selenium.Proxy",
-    "autodetect": False
-}
-
-# Launch the browser using the configured WebDriver
 driver = webdriver.Chrome()
+# Navigate to the webpage
 driver.get("https://www.lambdatest.com/")
-title = driver.title
-print(title)
-driver.implicitly_wait(5)
+
+# Find all the elements that match the specified class name
+right_elements = driver.find_elements(By.XPATH, '//*[@id="header"]/nav/div/div/div[2]/div/div/div[1]//a[contains(@class, "desktop:block")]')
+left_elements = driver.find_elements(By.XPATH, '//*[@id="header"]/nav/div/div/div[2]/div/div/div[2]//*[contains(@class, "desktop:block")]')
+elements = right_elements + left_elements
+for element in elements:
+    print(element.text)
+    element.click()
+    driver.back()
+# Close the browser
+driver.quit()
+# Close the browser window
 
 
-logs = proxy.har['log']['entries']
-
-with open('logs.json', 'w') as f:
-    f.write(json.dumps(logs))
